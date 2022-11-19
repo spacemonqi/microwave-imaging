@@ -1,18 +1,53 @@
-import math
 import os
 import cv2
-import time
-from PIL import Image
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
+import math
+import base64
 from google.cloud import aiplatform
-from predict_image_object_detection_sample import predict_image_object_detection_sample
-# mpl.use('TkAgg')
+from google.cloud.aiplatform.gapic.schema import predict
+
+
+def predict_image_object_detection_sample(
+    project: str,
+    endpoint_id: str,
+    filename: str,
+    location: str = "us-central1",
+    api_endpoint: str = "us-central1-aiplatform.googleapis.com",
+):
+    # The AI Platform services require regional API endpoints.
+    client_options = {"api_endpoint": api_endpoint}
+    # Initialize client that will be used to create and send requests.
+    # This client only needs to be created once, and can be reused for multiple requests.
+    client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
+    with open(filename, "rb") as f:
+        file_content = f.read()
+
+    # The format of each instance should conform to the deployed model's prediction input schema.
+    encoded_content = base64.b64encode(file_content).decode("utf-8")
+    instance = predict.instance.ImageObjectDetectionPredictionInstance(
+        content=encoded_content,
+    ).to_value()
+    instances = [instance]
+    # See gs://google-cloud-aiplatform/schema/predict/params/image_object_detection_1.0.0.yaml for the format of the parameters.
+    parameters = predict.params.ImageObjectDetectionPredictionParams(
+        confidence_threshold=0.5, max_predictions=5,
+    ).to_value()
+    endpoint = client.endpoint_path(
+        project=project, location=location, endpoint=endpoint_id
+    )
+    response = client.predict(
+        endpoint=endpoint, instances=instances, parameters=parameters
+    )
+    print("response")
+    print(" deployed_model_id:", response.deployed_model_id)
+    # See gs://google-cloud-aiplatform/schema/predict/prediction/image_object_detection_1.0.0.yaml for the format of the predictions.
+    predictions = response.predictions
+    for prediction in predictions:
+        print(" prediction:", dict(prediction))
+
+    return prediction
 
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
-
 aiplatform.init(
     project        = 'abiogenesis',
     location       = 'us-central1',
@@ -20,10 +55,8 @@ aiplatform.init(
     credentials    = 'key.json'
 )
 
-# image = "images/20221119-115341-596.png"
 images_dir = '/home/dve/Desktop/microwave-imaging/images/highres/old'
 files = os.listdir(images_dir)
-# image = "images_new/20221119-115455-700.png"
 for f, file in zip(range(len(files)), files):
     if f%10!=0:
         continue
@@ -41,36 +74,21 @@ for f, file in zip(range(len(files)), files):
     img = cv2.imread(image)
     dimensions = img.shape
     dim = dimensions[0]
-    print(dimensions)
     bboxes       = result['bboxes']
     displayNames = result['displayNames']
     mapping = {
-        # 'paper'  : (255, 0, 0),
-        # 'plastic': (0, 255, 0),
-        # 'metal'  : (0, 0, 255)
         'paper'  : (255, 0, 0),
         'plastic': (0, 255, 0),
         'metal'  : (0, 0, 255)
     }
-    # cv2.rectangle(img, (100, 560), (700, 480),
-    #               (0, 0, 255), 3)
-    # cv2.rectangle(img, (650, 450), (420, 240),
-    #               (255, 0, 0), 5)
-
     for bb, dn in zip(bboxes, displayNames):
-        # x      = (bb[0] + bb[1])/2
-        # y      = (bb[2] + bb[3])/2
-        # width  = abs(bb[1]) - abs(bb[0])
-        # height = abs(bb[3]) - abs(bb[2])
         tl     = (int(bb[0]*dim), int(bb[3]*dim))
         br     = (int(bb[1]*dim), int(bb[2]*dim))
         print(tl)
         print(type(tl))
         cv2.rectangle(
             img       = img,
-            # pt1       = (150, 50),
             pt1       = tl,
-            # pt2       = (380, 40),
             pt2       = br,
             color     = mapping[dn],
             thickness = math.ceil(4 * dim / scaling_factor)
