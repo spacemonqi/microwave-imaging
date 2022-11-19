@@ -173,8 +173,8 @@ def display(
     cbar.ax.set_ylabel(cmap_label)
     plt.show()
 
-
-if __name__ == "__main__":
+    
+def visualize_sample_imput():    
     C0 = 299792458
     FC = 77e9
     LAMBDA = C0 / FC
@@ -281,3 +281,8 @@ if __name__ == "__main__":
         xlabel="$k_x$ in $2\\pi \\,/\\, \\lambda$",
         ylabel="$k_y$ in $2\\pi \\,/\\, \\lambda$",
     )
+
+
+if __name__ == '__main__':
+    pass
+    
