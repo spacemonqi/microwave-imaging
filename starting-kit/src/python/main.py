@@ -173,8 +173,12 @@ def display(
     cbar.ax.set_ylabel(cmap_label)
     plt.show()
 
+
+def get_layer(volume, layer_number):
+    return np.abs(compute_slice(volume, layer_number))
+
     
-def visualize_sample_imput():    
+def visualize_sample_input():
     C0 = 299792458
     FC = 77e9
     LAMBDA = C0 / FC
@@ -284,5 +288,5 @@ def visualize_sample_imput():
 
 
 if __name__ == '__main__':
-    pass
+    visualize_sample_input()
     
