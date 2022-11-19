@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "abiogenesis",
+  "private_key_id": "0557f3982d5363ae375fb8ca36115afdd5b370c7",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCSpM+mR5avgwxk\nOpZuhnEYmUtlpLgue/BArIiwmKC0A7mn4cEwfxmEgVfLiEvvnaz3jDHwA+bnv+yI\npBDwo6pM4pT9Y6gNCP97jeFS0rjBmNgjK6aUNPm5rT6Ywutbxv+5sdIXw/84XivC\nEAHeScPHf83FZVdu0ZnmEpZnLInCPiR43jkmwYZ8W7YV5shIfMsQfpiWyGenRYTm\nIst2Vs+YQK16j7+etiphFMoF89c18fxIeWHmzuZ650DXZOHLuN3DU/ft3Er8NbWm\nWPSdi2FLFT3pRmzJopKQaLG/pClXM3/id4ZpSLmMSYXd9HoHH6qUt1QAjhRnw/k9\ntWLG1e5PAgMBAAECggEAL6+fhMtv0Vg0rd0tcPiQC3dCAOYdLKSJ/oX8lyyyyYcS\nlui/OWWDZ0bmRV3nj55/EirJTGsAaelL4i00AwS9yu29lF6VVdPQvJ1pIdU7Vl09\nH8bAjx5g/MO9ANEV1wzxuLF+B9NpCav538vzx5TGMPg68k9frL5FJP9zYE6n531u\np05JZJgw1YjlMrhQKlGTheDGcNpGmTmqBUh6jhwOPekp7s8A2dPNt7wmeqNUZZcJ\nTZ3IVagIU8kSdPkgUVPma2Z5VmH59MEYjPIJJ1nIS5tKfyF7v08mO8o5KeBWEeBP\nMuRsH4ah2U46nm8adb0274Vu0e8Q8Exq6oWtMR6ykQKBgQDI5RG+q2wHEM7zsTEe\nvS8AxdJfXzqZzSIdT9OwUuOR/FaLST1k2i9GByy6dANUNc8JvDVdaRZpOT7I1haZ\nhfpYftXRsZInSyGEgeCdgGl7dK846ehjMBUxyj7s+j7bYHcmmi23eUe6n6t+Upp9\nY3PYUYusJfJcltPsCyX+oBlRkQKBgQC63jWpZa/TNYu6wI+9qDuKF7BhxmVATiNL\nJ5kDeq0U5lgJMgZybAMx1gZs4lWFzm4xmT5zT63bzSoAHB9K8JGFAXQUh/aaE3uj\nX3SV00mgcBOmZUkvhORxT0o+kxUNEiMhjIXPQB3nprX4i4duP1xEkAI9PALmL2wQ\nW4JIgelR3wKBgDo9JhrHaUbXGZfN+3Z008Z+ktExMzTZIhWrSawpK23r4E76yYCO\nO/wqIk5fSYPFIaMp27Kbv3J7tPbWEbEqBPxYsLXcq4kWn73hRPOEAZBXsGBodwUi\nMFLB1eIvXb+NRJ19PtmcoC27EiVJ3x2QkknYwgwC6DLtSrx4MuiREyXxAoGBAIkI\nSHuniQ8uVgAmE4J16utyQbMBpOBKLJGBQTEO9fu8itR7bcTctl8GXwHb2/Falu4i\nPWycApeL1P/tn3j5/wx1K2We6tTD8se0SS9RmM1hQtejsM56+napOX23qBlEsqR4\nguufTg7A7vKLh03ugr/4htvWtR2NqwY3xMtdEPcrAoGAE1eEBiNhKPvP9vLIMXEa\nEPCXYRZYtyxEk2TAAnzPD7YRDZQpUJ8X38lfvD4RhYLGoF9di43a/lnnVFWZX/AW\nuKU1iGLYjP7p3cXQUOyYcGk9xhIAUABmPxY4IiZ+rziAVPMJSpgyRp7CCM1IF5Ze\nsP1nej4GL91TdRq2pfMMFqo=\n-----END PRIVATE KEY-----\n",
+  "client_email": "abiogenesis-service-account@abiogenesis.iam.gserviceaccount.com",
+  "client_id": "113151911365395698283",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/abiogenesis-service-account%40abiogenesis.iam.gserviceaccount.com"
+}

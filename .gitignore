@@ -1,3 +1,7 @@
+# daniel-v-e
+*.png
+TensorFlow/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
