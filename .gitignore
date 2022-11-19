@@ -1,6 +1,9 @@
 # daniel-v-e
 *.png
 TensorFlow/
+dash-bio/
+images/
+data/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
