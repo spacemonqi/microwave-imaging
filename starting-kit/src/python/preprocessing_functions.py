@@ -21,12 +21,6 @@ def layer_to_png(layer, output_path):
 
 def reduce_dimensionality(image_list):
     img_compressed = [skimage.transform.resize(i, (64, 64)) for i in image_list]
-
-    fig, ax = plt.subplots(2)
-    ax[0].imshow(image_list[0])
-    ax[1].imshow(img_compressed[0])
-    plt.show()
-
     return img_compressed
 
 
@@ -38,10 +32,14 @@ def filter_noise(layer):
     return filtered_layer
 
 
-def import_volume(path):
+def import_volume(path, mip=True):
     volume, x_vec, y_vec, z_vec = main.import_volume(path)
-    img = np.abs(main.compute_mip(volume)[0])
+    if mip:
+        img = np.abs(main.compute_mip(volume)[0])
+    else:
+        img = np.abs(main.compute_slice(volume, 0))
     return img
+
 
 if __name__ == '__main__':
     start_time = time.time()

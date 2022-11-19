@@ -9,7 +9,7 @@ def pipeline():
     target_folder = pathlib.Path('C:\\Users\\Алексей\\Documents\\Crypto\\HackaTUM\\microwave-imaging\\data\\processed_corrupted')
 
     pickle_path = pathlib.Path('test_files/preprocessed.pkl')
-    # if pickle_path.exists():
+    # if pickle_path.exists():w
     #     with open(pickle_path, 'rb') as f:
     #         filtered_images, image_names = pickle.load(f)
 
@@ -38,7 +38,8 @@ def pipeline():
 
 def process_raw_image(img_folder):
     image = preprocessing_functions.import_volume(
-        img_folder / f"{img_folder.stem}_reco.img"
+        img_folder / f"{img_folder.stem}_reco.img",
+        mip=False
     )
     img_filtered = preprocessing_functions.filter_noise(image)
     return img_filtered, img_folder.stem
