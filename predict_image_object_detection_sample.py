@@ -57,5 +57,6 @@ def predict_image_object_detection_sample(
     for prediction in predictions:
         print(" prediction:", dict(prediction))
 
+    return prediction
 
 # [END aiplatform_predict_image_object_detection_sample]
