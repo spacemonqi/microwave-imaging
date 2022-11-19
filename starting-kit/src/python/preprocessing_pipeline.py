@@ -5,24 +5,24 @@ import pickle
 import preprocessing_functions
 
 def pipeline():
-    root = pathlib.Path('C:\\Users\\Алексей\\Documents\\Crypto\\HackaTUM\\microwave-imaging\\data\\raw')
-    target_folder = pathlib.Path('C:\\Users\\Алексей\\Documents\\Crypto\\HackaTUM\\microwave-imaging\\data\\processed')
+    root = pathlib.Path('C:\\Users\\Алексей\\Documents\\Crypto\\HackaTUM\\microwave-imaging\\data\\corrupted')
+    target_folder = pathlib.Path('C:\\Users\\Алексей\\Documents\\Crypto\\HackaTUM\\microwave-imaging\\data\\processed_corrupted')
 
     pickle_path = pathlib.Path('test_files/preprocessed.pkl')
-    if pickle_path.exists():
-        with open(pickle_path, 'rb') as f:
-            filtered_images, image_names = pickle.load(f)
-    else:
-        filtered_images = []
-        image_names = []
-        for img_folder in root.iterdir() :
-            if img_folder.is_dir():
-                processed = process_raw_image(img_folder)
-                filtered_images.append(processed[0])
-                image_names.append(processed[1])
+    # if pickle_path.exists():
+    #     with open(pickle_path, 'rb') as f:
+    #         filtered_images, image_names = pickle.load(f)
 
-        with open(pickle_path, 'wb') as f:
-            pickle.dump([filtered_images, image_names], f)
+    filtered_images = []
+    image_names = []
+    for img_folder in root.iterdir() :
+        if img_folder.is_dir():
+            processed = process_raw_image(img_folder)
+            filtered_images.append(processed[0])
+            image_names.append(processed[1])
+
+    with open(pickle_path, 'wb') as f:
+        pickle.dump([filtered_images, image_names], f)
 
     reduced_images = preprocessing_functions.reduce_dimensionality(filtered_images)
 
