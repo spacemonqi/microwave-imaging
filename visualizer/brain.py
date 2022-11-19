@@ -8,6 +8,12 @@ vol = io.imread("https://s3.amazonaws.com/assets.datacamp.com/blog_assets/attent
 volume = vol.T
 r, c = volume[0].shape
 
+print(vol)
+print(volume)
+print(r)
+print(c)
+exit()
+
 # Define frames
 import plotly.graph_objects as go
 nb_frames = 68
