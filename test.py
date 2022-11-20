@@ -20,6 +20,7 @@ def predict_image_object_detection_sample(
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
     with open(filename, "rb") as f:
         file_content = f.read()
+    print(file_content)
 
     # The format of each instance should conform to the deployed model's prediction input schema.
     encoded_content = base64.b64encode(file_content).decode("utf-8")

@@ -5,6 +5,7 @@ import uuid
 from copy import deepcopy
 import csv
 import sys
+import base64
 import pathlib
 
 import boto3
@@ -34,15 +35,20 @@ def predict_image_object_detection_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
+    print('asking')
     # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
+    print('reading')
+    print(filename)
     with open(filename, "rb") as f:
         file_content = f.read()
+    # print(file_content)
 
     # The format of each instance should conform to the deployed model's prediction input schema.
+    print('encoding')
     encoded_content = base64.b64encode(file_content).decode("utf-8")
     instance = predict.instance.ImageObjectDetectionPredictionInstance(
         content=encoded_content,
@@ -69,6 +75,7 @@ def predict_image_object_detection_sample(
 
 
 def predict_image(image):
+    print('predicting')
     result = predict_image_object_detection_sample(
         project     = "44054203076",
         endpoint_id = "6030922433421115392",
@@ -413,10 +420,7 @@ def undo_last_action(n_clicks, storage):
 # action stack
 @cache.memoize()
 def apply_actions_on_image(session_id, action_stack, filename, image_signature):
-    
-    print(filename)
-    # new_filename = predict_image(filename)
-    # print(new_filename)
+    print('bruh')
     
     # action_stack = deepcopy(action_stack)
 
@@ -544,8 +548,10 @@ def update_graph_interactive_image(
     session_id,
 ):
     t_start = time.time()
-    print(new_filename)
+    print(type(content))
+    print(content[:100])
     # exit()
+
 
     # Retrieve information saved in storage, which is a dict containing
     # information about the image and its action stack
@@ -560,9 +566,9 @@ def update_graph_interactive_image(
 
     # If a new file was uploaded (new file name changed)
     if new_filename and new_filename != filename:
-        # Replace filename
-        if DEBUG:
-            print(filename, "replaced by", new_filename)
+        # # Replace filename
+        # if DEBUG:
+        #     print(filename, "replaced by", new_filename)
 
         # Update the storage dict
         storage["filename"] = new_filename
@@ -575,36 +581,42 @@ def update_graph_interactive_image(
         # of the string encoding
         storage["image_signature"] = string[:200]
 
-        # Posts the image string into the Bucketeer Storage (which is hosted
-        # on S3)
-        store_image_string(string, session_id)
-        if DEBUG:
-            print(new_filename, "added to Bucketeer S3.")
+        # # Posts the image string into the Bucketeer Storage (which is hosted
+        # # on S3)
+        # store_image_string(string, session_id)
+        # if DEBUG:
+        #     print(new_filename, "added to Bucketeer S3.")
 
         # Resets the action stack
         storage["action_stack"] = []
 
+
     # If an operation was applied (when the filename wasn't changed)
     else:
+        filepath = '/home/dve/Desktop/microwave-imaging/dash-image-processing/images/' + filename
+        print(filepath)
+        new_filepath = predict_image(filepath)
+        print(new_filepath) 
+
         # Add actions to the action stack (we have more than one if filters
         # and enhance are BOTH selected)
-        if filters:
-            type = "filter"
-            operation = filters
-            add_action_to_stack(storage["action_stack"], operation, type, selectedData)
+        # if filters:
+        #     type = "filter"
+        #     operation = filters
+        #     add_action_to_stack(storage["action_stack"], operation, type, selectedData)
 
-        if enhance:
-            type = "enhance"
-            operation = {
-                "enhancement": enhance,
-                "enhancement_factor": enhancement_factor,
-            }
-            add_action_to_stack(storage["action_stack"], operation, type, selectedData)
+        # if enhance:
+        #     type = "enhance"
+        #     operation = {
+        #         "enhancement": enhance,
+        #         "enhancement_factor": enhancement_factor,
+        #     }
+        #     add_action_to_stack(storage["action_stack"], operation, type, selectedData)
 
-        # Apply the required actions to the picture, using memoized function
-        im_pil = apply_actions_on_image(
-            session_id, storage["action_stack"], filename, image_signature
-        )
+        # # Apply the required actions to the picture, using memoized function
+        # im_pil = apply_actions_on_image(
+        #     session_id, storage["action_stack"], filename, image_signature
+        # )
 
     t_end = time.time()
     if DEBUG:
