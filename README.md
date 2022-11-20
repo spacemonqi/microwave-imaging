@@ -57,3 +57,12 @@ Utilizing various effective preprocessing techniques
 - Team building process and effectively working together in order to develop the entire solution
 
 - Brainstorming for creative and innovative ideas
+
+## Team
+
+- Daniel von Eschwege
+- Jordi van Setten
+- Kristóf András Sándor 
+- Aleksei Zhuravlev
+
+
