@@ -35,20 +35,15 @@ def predict_image_object_detection_sample(
     location: str = "us-central1",
     api_endpoint: str = "us-central1-aiplatform.googleapis.com",
 ):
-    print('asking')
     # The AI Platform services require regional API endpoints.
     client_options = {"api_endpoint": api_endpoint}
     # Initialize client that will be used to create and send requests.
     # This client only needs to be created once, and can be reused for multiple requests.
     client = aiplatform.gapic.PredictionServiceClient(client_options=client_options)
-    print('reading')
-    print(filename)
     with open(filename, "rb") as f:
         file_content = f.read()
-    # print(file_content)
 
     # The format of each instance should conform to the deployed model's prediction input schema.
-    print('encoding')
     encoded_content = base64.b64encode(file_content).decode("utf-8")
     instance = predict.instance.ImageObjectDetectionPredictionInstance(
         content=encoded_content,
@@ -75,7 +70,6 @@ def predict_image_object_detection_sample(
 
 
 def predict_image(image):
-    print('predicting')
     result = predict_image_object_detection_sample(
         project     = "44054203076",
         endpoint_id = "6030922433421115392",
@@ -90,13 +84,14 @@ def predict_image(image):
     bboxes         = result['bboxes']
     displayNames   = result['displayNames']
     mapping        = {
-        'paper'  : (255, 0, 0),
-        'plastic': (0, 255, 0),
+        'paper'  : (255, 255, 0),
+        'plastic': (0, 165, 255),
         'metal'  : (0, 0, 255)
     }
     for bb, dn in zip(bboxes, displayNames):
         tl     = (int(bb[0]*dim), int(bb[3]*dim))
         br     = (int(bb[1]*dim), int(bb[2]*dim))
+        width  = (br[0] - tl[0])
         cv2.rectangle(
             img       = img,
             pt1       = tl,
@@ -105,7 +100,7 @@ def predict_image(image):
             thickness = math.ceil(4 * dim / scaling_factor)
         )
         font = cv2.FONT_HERSHEY_PLAIN
-        cv2.putText(img, dn, br, font, 2, mapping[dn], 2, cv2.LINE_AA)
+        cv2.putText(img, dn, (br[0]-width, br[1]-10), font, 2, mapping[dn], 2, cv2.LINE_AA)
 
     out_image = image.replace('.', '-bboxed.')
     cv2.imwrite(out_image, img)
@@ -416,91 +411,6 @@ def undo_last_action(n_clicks, storage):
     return storage
 
 
-# Recursively retrieve the previous versions of the image by popping the
-# action stack
-@cache.memoize()
-def apply_actions_on_image(session_id, action_stack, filename, image_signature):
-    print('bruh')
-    
-    # action_stack = deepcopy(action_stack)
-
-    # # If we have arrived to the original image
-    # if len(action_stack) == 0 and LOCAL:
-    #     with open("image_string.csv", mode="r") as image_file:
-    #         image_reader = csv.DictReader(image_file)
-    #         for row in image_reader:
-    #             im_pil = drc.b64_to_pil(row["image"])
-    #             return im_pil
-
-    # if len(action_stack) == 0 and not LOCAL:
-    #     # Retrieve the url in which the image string is stored inside s3,
-    #     # using the session ID
-
-    #     url = s3.generate_presigned_url(
-    #         ClientMethod="get_object", Params={"Bucket": bucket_name, "Key": session_id}
-    #     )
-
-    #     # A key replacement is required for URL pre-sign in gcp
-
-    #     url = url.replace("AWSAccessKeyId", "GoogleAccessId")
-
-    #     response = requests.get(url)
-    #     if DEBUG:
-    #         print("IMAGE STRING LENGTH: " + str(len(response.text)))
-    #     im_pil = drc.b64_to_pil(response.text)
-    #     return im_pil
-
-    # # Pop out the last action
-    # last_action = action_stack.pop()
-    # # Apply all the previous action_stack recursively, and gets the image PIL
-    # im_pil = apply_actions_on_image(session_id, action_stack, filename, image_signature)
-    # im_size = im_pil.size
-
-    # # Apply the rest of the action_stack
-    # operation = last_action["operation"]
-    # selected_data = last_action["selectedData"]
-    # action_type = last_action["type"]
-
-    # # Select using Lasso
-    # if selected_data and "lassoPoints" in selected_data:
-    #     selection_mode = "lasso"
-    #     selection_zone = utils.generate_lasso_mask(im_pil, selected_data)
-    # # Select using rectangular box
-    # elif selected_data and "range" in selected_data:
-    #     selection_mode = "select"
-    #     lower, upper = map(int, selected_data["range"]["y"])
-    #     left, right = map(int, selected_data["range"]["x"])
-    #     # Adjust height difference
-    #     height = im_size[1]
-    #     upper = height - upper
-    #     lower = height - lower
-    #     selection_zone = (left, upper, right, lower)
-    # # Select the whole image
-    # else:
-    #     selection_mode = "select"
-    #     selection_zone = (0, 0) + im_size
-
-    # # Apply the filters
-    # if action_type == "filter":
-    #     utils.apply_filters(
-    #         image=im_pil, zone=selection_zone, filter=operation, mode=selection_mode
-    #     )
-    # elif action_type == "enhance":
-    #     enhancement = operation["enhancement"]
-    #     factor = operation["enhancement_factor"]
-
-    #     utils.apply_enhancements(
-    #         image=im_pil,
-    #         zone=selection_zone,
-    #         enhancement=enhancement,
-    #         enhancement_factor=factor,
-    #         mode=selection_mode,
-    #     )
-
-    # return im_pil
-
-
-
 # @app.callback(
 #     Output("graph-histogram-colors", "figure"), [Input("interactive-image", "figure")]
 # )
@@ -547,16 +457,10 @@ def update_graph_interactive_image(
     storage,
     session_id,
 ):
-    t_start = time.time()
-    print(type(content))
-    print(content[:100])
-    # exit()
-
 
     # Retrieve information saved in storage, which is a dict containing
     # information about the image and its action stack
     storage = json.loads(storage)
-    print(storage)
     filename = storage["filename"]  # Filename is the name of the image file.
     image_signature = storage["image_signature"]
 
@@ -566,26 +470,19 @@ def update_graph_interactive_image(
 
     # If a new file was uploaded (new file name changed)
     if new_filename and new_filename != filename:
-        # # Replace filename
-        # if DEBUG:
-        #     print(filename, "replaced by", new_filename)
 
         # Update the storage dict
         storage["filename"] = new_filename
 
         # Parse the string and convert to pil
         string = content.split(";base64,")[-1]
+        print(string[:100])
         im_pil = drc.b64_to_pil(string)
 
         # Update the image signature, which is the first 200 b64 characters
         # of the string encoding
         storage["image_signature"] = string[:200]
 
-        # # Posts the image string into the Bucketeer Storage (which is hosted
-        # # on S3)
-        # store_image_string(string, session_id)
-        # if DEBUG:
-        #     print(new_filename, "added to Bucketeer S3.")
 
         # Resets the action stack
         storage["action_stack"] = []
@@ -594,33 +491,11 @@ def update_graph_interactive_image(
     # If an operation was applied (when the filename wasn't changed)
     else:
         filepath = '/home/dve/Desktop/microwave-imaging/dash-image-processing/images/' + filename
-        print(filepath)
         new_filepath = predict_image(filepath)
-        print(new_filepath) 
-
-        # Add actions to the action stack (we have more than one if filters
-        # and enhance are BOTH selected)
-        # if filters:
-        #     type = "filter"
-        #     operation = filters
-        #     add_action_to_stack(storage["action_stack"], operation, type, selectedData)
-
-        # if enhance:
-        #     type = "enhance"
-        #     operation = {
-        #         "enhancement": enhance,
-        #         "enhancement_factor": enhancement_factor,
-        #     }
-        #     add_action_to_stack(storage["action_stack"], operation, type, selectedData)
-
-        # # Apply the required actions to the picture, using memoized function
-        # im_pil = apply_actions_on_image(
-        #     session_id, storage["action_stack"], filename, image_signature
-        # )
-
-    t_end = time.time()
-    if DEBUG:
-        print(f"Updated Image Storage in {t_end - t_start:.3f} sec")
+        with open(new_filepath, "rb") as image_file:
+            encoded_string = base64.b64encode(image_file.read()).decode()
+        print(encoded_string[:100])
+        im_pil = drc.b64_to_pil(encoded_string)
 
     return [
         drc.InteractiveImagePIL(
@@ -636,35 +511,6 @@ def update_graph_interactive_image(
     ]
 
 
-# # Show/Hide Callbacks
-# @app.callback(
-#     Output("div-enhancement-factor", "style"),
-#     [Input("dropdown-enhance", "value")],
-#     [State("div-enhancement-factor", "style")],
-# )
-# def show_slider_enhancement_factor(value, style):
-#     # If any enhancement is selected
-#     if value:
-#         style["display"] = "block"
-#     else:
-#         style["display"] = "none"
-
-#     return style
-
-
-# # Reset Callbacks
-# @app.callback(
-#     Output("dropdown-filters", "value"), [Input("button-run-operation", "n_clicks")]
-# )
-# def reset_dropdown_filters(_):
-#     return None
-
-
-# @app.callback(
-#     Output("dropdown-enhance", "value"), [Input("button-run-operation", "n_clicks")]
-# )
-# def reset_dropdown_enhance(_):
-#     return None
 
 
 # Running the server
