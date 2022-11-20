@@ -25,13 +25,7 @@ from google.cloud import aiplatform
 from google.cloud.aiplatform.gapic.schema import predict
 
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
-aiplatform.init(
-    project        = 'abiogenesis',
-    location       = 'us-central1',
-    staging_bucket = 'gs://my_staging_bucket_abiogenesis',
-    credentials    = 'key.json'
-)
+
 
 def predict_image_object_detection_sample(
     project: str,
@@ -350,7 +344,7 @@ def serve_layout():
                                 id="button-group",
                                 children=[
                                     html.Button(
-                                        "Run Operation", id="button-run-operation"
+                                        "Run Detection", id = "button-run-operation"
                                     ),
                                     html.Button("Undo", id="button-undo"),
                                 ],
@@ -415,97 +409,92 @@ def undo_last_action(n_clicks, storage):
     return storage
 
 
-# # Recursively retrieve the previous versions of the image by popping the
-# # action stack
-# @cache.memoize()
-# def apply_actions_on_image(session_id, action_stack, filename, image_signature):
-#     action_stack = deepcopy(action_stack)
+# Recursively retrieve the previous versions of the image by popping the
+# action stack
+@cache.memoize()
+def apply_actions_on_image(session_id, action_stack, filename, image_signature):
+    
+    print(filename)
+    # new_filename = predict_image(filename)
+    # print(new_filename)
+    
+    # action_stack = deepcopy(action_stack)
 
-#     # If we have arrived to the original image
-#     if len(action_stack) == 0 and LOCAL:
-#         with open("image_string.csv", mode="r") as image_file:
-#             image_reader = csv.DictReader(image_file)
-#             for row in image_reader:
-#                 im_pil = drc.b64_to_pil(row["image"])
-#                 return im_pil
+    # # If we have arrived to the original image
+    # if len(action_stack) == 0 and LOCAL:
+    #     with open("image_string.csv", mode="r") as image_file:
+    #         image_reader = csv.DictReader(image_file)
+    #         for row in image_reader:
+    #             im_pil = drc.b64_to_pil(row["image"])
+    #             return im_pil
 
-#     if len(action_stack) == 0 and not LOCAL:
-#         # Retrieve the url in which the image string is stored inside s3,
-#         # using the session ID
+    # if len(action_stack) == 0 and not LOCAL:
+    #     # Retrieve the url in which the image string is stored inside s3,
+    #     # using the session ID
 
-#         url = s3.generate_presigned_url(
-#             ClientMethod="get_object", Params={"Bucket": bucket_name, "Key": session_id}
-#         )
+    #     url = s3.generate_presigned_url(
+    #         ClientMethod="get_object", Params={"Bucket": bucket_name, "Key": session_id}
+    #     )
 
-#         # A key replacement is required for URL pre-sign in gcp
+    #     # A key replacement is required for URL pre-sign in gcp
 
-#         url = url.replace("AWSAccessKeyId", "GoogleAccessId")
+    #     url = url.replace("AWSAccessKeyId", "GoogleAccessId")
 
-#         response = requests.get(url)
-#         if DEBUG:
-#             print("IMAGE STRING LENGTH: " + str(len(response.text)))
-#         im_pil = drc.b64_to_pil(response.text)
-#         return im_pil
+    #     response = requests.get(url)
+    #     if DEBUG:
+    #         print("IMAGE STRING LENGTH: " + str(len(response.text)))
+    #     im_pil = drc.b64_to_pil(response.text)
+    #     return im_pil
 
-#     # Pop out the last action
-#     last_action = action_stack.pop()
-#     # Apply all the previous action_stack recursively, and gets the image PIL
-#     im_pil = apply_actions_on_image(session_id, action_stack, filename, image_signature)
-#     im_size = im_pil.size
+    # # Pop out the last action
+    # last_action = action_stack.pop()
+    # # Apply all the previous action_stack recursively, and gets the image PIL
+    # im_pil = apply_actions_on_image(session_id, action_stack, filename, image_signature)
+    # im_size = im_pil.size
 
-#     # Apply the rest of the action_stack
-#     operation = last_action["operation"]
-#     selected_data = last_action["selectedData"]
-#     action_type = last_action["type"]
+    # # Apply the rest of the action_stack
+    # operation = last_action["operation"]
+    # selected_data = last_action["selectedData"]
+    # action_type = last_action["type"]
 
-#     # Select using Lasso
-#     if selected_data and "lassoPoints" in selected_data:
-#         selection_mode = "lasso"
-#         selection_zone = utils.generate_lasso_mask(im_pil, selected_data)
-#     # Select using rectangular box
-#     elif selected_data and "range" in selected_data:
-#         selection_mode = "select"
-#         lower, upper = map(int, selected_data["range"]["y"])
-#         left, right = map(int, selected_data["range"]["x"])
-#         # Adjust height difference
-#         height = im_size[1]
-#         upper = height - upper
-#         lower = height - lower
-#         selection_zone = (left, upper, right, lower)
-#     # Select the whole image
-#     else:
-#         selection_mode = "select"
-#         selection_zone = (0, 0) + im_size
+    # # Select using Lasso
+    # if selected_data and "lassoPoints" in selected_data:
+    #     selection_mode = "lasso"
+    #     selection_zone = utils.generate_lasso_mask(im_pil, selected_data)
+    # # Select using rectangular box
+    # elif selected_data and "range" in selected_data:
+    #     selection_mode = "select"
+    #     lower, upper = map(int, selected_data["range"]["y"])
+    #     left, right = map(int, selected_data["range"]["x"])
+    #     # Adjust height difference
+    #     height = im_size[1]
+    #     upper = height - upper
+    #     lower = height - lower
+    #     selection_zone = (left, upper, right, lower)
+    # # Select the whole image
+    # else:
+    #     selection_mode = "select"
+    #     selection_zone = (0, 0) + im_size
 
-#     # Apply the filters
-#     if action_type == "filter":
-#         utils.apply_filters(
-#             image=im_pil, zone=selection_zone, filter=operation, mode=selection_mode
-#         )
-#     elif action_type == "enhance":
-#         enhancement = operation["enhancement"]
-#         factor = operation["enhancement_factor"]
+    # # Apply the filters
+    # if action_type == "filter":
+    #     utils.apply_filters(
+    #         image=im_pil, zone=selection_zone, filter=operation, mode=selection_mode
+    #     )
+    # elif action_type == "enhance":
+    #     enhancement = operation["enhancement"]
+    #     factor = operation["enhancement_factor"]
 
-#         utils.apply_enhancements(
-#             image=im_pil,
-#             zone=selection_zone,
-#             enhancement=enhancement,
-#             enhancement_factor=factor,
-#             mode=selection_mode,
-#         )
+    #     utils.apply_enhancements(
+    #         image=im_pil,
+    #         zone=selection_zone,
+    #         enhancement=enhancement,
+    #         enhancement_factor=factor,
+    #         mode=selection_mode,
+    #     )
 
-#     return im_pil
+    # return im_pil
 
-
-# @app.callback(
-#     Output("interactive-image", "figure"),
-#     [Input("radio-selection-mode", "value")],
-#     [State("interactive-image", "figure")],
-# )
-# def update_selection_mode(selection_mode, figure):
-#     if figure:
-#         figure["layout"]["dragmode"] = selection_mode
-#     return figure
 
 
 # @app.callback(
@@ -555,10 +544,13 @@ def update_graph_interactive_image(
     session_id,
 ):
     t_start = time.time()
+    print(new_filename)
+    # exit()
 
     # Retrieve information saved in storage, which is a dict containing
     # information about the image and its action stack
     storage = json.loads(storage)
+    print(storage)
     filename = storage["filename"]  # Filename is the name of the image file.
     image_signature = storage["image_signature"]
 
@@ -620,11 +612,11 @@ def update_graph_interactive_image(
 
     return [
         drc.InteractiveImagePIL(
-            image_id="interactive-image",
-            image=im_pil,
-            enc_format=enc_format,
-            dragmode=dragmode,
-            verbose=DEBUG,
+            image_id   = "interactive-image",
+            image      = im_pil,
+            enc_format = enc_format,
+            dragmode   = dragmode,
+            verbose    = DEBUG,
         ),
         html.Div(
             id="div-storage", children=json.dumps(storage), style={"display": "none"}
@@ -665,4 +657,11 @@ def update_graph_interactive_image(
 
 # Running the server
 if __name__ == "__main__":
+    os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = 'key.json'
+    aiplatform.init(
+        project        = 'abiogenesis',
+        location       = 'us-central1',
+        staging_bucket = 'gs://my_staging_bucket_abiogenesis',
+        credentials    = 'key.json'
+    )
     app.run_server(debug=True)
