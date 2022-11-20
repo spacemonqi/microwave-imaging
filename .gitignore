@@ -4,6 +4,7 @@ TensorFlow/
 dash-bio/
 images/
 data/
+dash-sample-apps/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

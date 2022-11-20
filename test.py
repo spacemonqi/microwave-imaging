@@ -71,21 +71,21 @@ for f, file in zip(range(len(files)), files):
     )
 
     scaling_factor = 1024
-    img = cv2.imread(image)
-    dimensions = img.shape
-    dim = dimensions[0]
-    bboxes       = result['bboxes']
-    displayNames = result['displayNames']
-    mapping = {
+    img            = cv2.imread(image)
+    dimensions     = img.shape
+    dim            = dimensions[0]
+    bboxes         = result['bboxes']
+    displayNames   = result['displayNames']
+    mapping        = {
         'paper'  : (255, 0, 0),
         'plastic': (0, 255, 0),
         'metal'  : (0, 0, 255)
     }
     for bb, dn in zip(bboxes, displayNames):
+        width  = bb[1] - bb[0]
+        height = bb[3] - bb[2]
         tl     = (int(bb[0]*dim), int(bb[3]*dim))
         br     = (int(bb[1]*dim), int(bb[2]*dim))
-        print(tl)
-        print(type(tl))
         cv2.rectangle(
             img       = img,
             pt1       = tl,
@@ -93,9 +93,12 @@ for f, file in zip(range(len(files)), files):
             color     = mapping[dn],
             thickness = math.ceil(4 * dim / scaling_factor)
         )
+        font = cv2.FONT_HERSHEY_PLAIN
+        cv2.putText(img, dn, br, font, 2, mapping[dn], 2, cv2.LINE_AA)
 
     cv2.namedWindow("resize", cv2.WINDOW_NORMAL)
     cv2.resizeWindow("resize", scaling_factor, scaling_factor)
     cv2.imshow('resize', img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+    exit()
