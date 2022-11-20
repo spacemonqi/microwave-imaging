@@ -4,6 +4,7 @@ TensorFlow/
 dash-bio/
 images/
 data/
+data_/
 dash-sample-apps/
 
 # Byte-compiled / optimized / DLL files
