@@ -394,71 +394,89 @@ def serve_layout():
                                 ],
                                 # No CSS alternative here
                                 style={
-                                    "color"        : "darkgray",
-                                    "width"        : "100%",
-                                    "height"       : "50px",
-                                    "lineHeight"   : "50px",
-                                    "borderWidth"  : "1px",
-                                    "borderStyle"  : "dashed",
-                                    "borderRadius" : "5px",
-                                    "borderColor"  : "darkgray",
-                                    "textAlign"    : "center",
-                                    "padding"      : "2rem 0",
+                                    "color": "darkgray",
+                                    "width": "100%",
+                                    "height": "50px",
+                                    "lineHeight": "50px",
+                                    "borderWidth": "1px",
+                                    "borderStyle": "dashed",
+                                    "borderRadius": "5px",
+                                    "borderColor": "darkgray",
+                                    "textAlign": "center",
+                                    "padding": "2rem 0",
                                     "margin-bottom": "2rem",
                                 },
                                 accept="image/*",
+                            ),
+                            drc.NamedInlineRadioItems(
+                                name="Selection Mode",
+                                short="selection-mode",
+                                options=[
+                                    {"label": " Rectangular", "value": "select"},
+                                    {"label": " Lasso", "value": "lasso"},
+                                ],
+                                val="select",
+                            ),
+                            drc.NamedInlineRadioItems(
+                                name="Image Display Format",
+                                short="encoding-format",
+                                options=[
+                                    {"label": " JPEG", "value": "jpeg"},
+                                    {"label": " PNG", "value": "png"},
+                                ],
+                                val="jpeg",
                             ),
                         ]
                     ),
                     drc.Card(
                         [
-                            # drc.CustomDropdown(
-                            #     id="dropdown-filters",
-                            #     options=[
-                            #         {"label": "Blur", "value": "blur"},
-                            #         {"label": "Contour", "value": "contour"},
-                            #         {"label": "Detail", "value": "detail"},
-                            #         {"label": "Enhance Edge", "value": "edge_enhance"},
-                            #         {
-                            #             "label": "Enhance Edge (More)",
-                            #             "value": "edge_enhance_more",
-                            #         },
-                            #         {"label": "Emboss", "value": "emboss"},
-                            #         {"label": "Find Edges", "value": "find_edges"},
-                            #         {"label": "Sharpen", "value": "sharpen"},
-                            #         {"label": "Smooth", "value": "smooth"},
-                            #         {"label": "Smooth (More)", "value": "smooth_more"},
-                            #     ],
-                            #     searchable=False,
-                            #     placeholder="Basic Filter...",
-                            # ),
-                            # drc.CustomDropdown(
-                            #     id="dropdown-enhance",
-                            #     options=[
-                            #         {"label": "Brightness", "value": "brightness"},
-                            #         {"label": "Color Balance", "value": "color"},
-                            #         {"label": "Contrast", "value": "contrast"},
-                            #         {"label": "Sharpness", "value": "sharpness"},
-                            #     ],
-                            #     searchable=False,
-                            #     placeholder="Enhance...",
-                            # ),
-                            # html.Div(
-                            #     id="div-enhancement-factor",
-                            #     children=[
-                            #         f"Enhancement Factor:",
-                            #         html.Div(
-                            #             children=dcc.Slider(
-                            #                 id="slider-enhancement-factor",
-                            #                 min=0,
-                            #                 max=2,
-                            #                 step=0.1,
-                            #                 value=1,
-                            #                 updatemode="drag",
-                            #             )
-                            #         ),
-                            #     ],
-                            # ),
+                            drc.CustomDropdown(
+                                id="dropdown-filters",
+                                options=[
+                                    {"label": "Blur", "value": "blur"},
+                                    {"label": "Contour", "value": "contour"},
+                                    {"label": "Detail", "value": "detail"},
+                                    {"label": "Enhance Edge", "value": "edge_enhance"},
+                                    {
+                                        "label": "Enhance Edge (More)",
+                                        "value": "edge_enhance_more",
+                                    },
+                                    {"label": "Emboss", "value": "emboss"},
+                                    {"label": "Find Edges", "value": "find_edges"},
+                                    {"label": "Sharpen", "value": "sharpen"},
+                                    {"label": "Smooth", "value": "smooth"},
+                                    {"label": "Smooth (More)", "value": "smooth_more"},
+                                ],
+                                searchable=False,
+                                placeholder="Basic Filter...",
+                            ),
+                            drc.CustomDropdown(
+                                id="dropdown-enhance",
+                                options=[
+                                    {"label": "Brightness", "value": "brightness"},
+                                    {"label": "Color Balance", "value": "color"},
+                                    {"label": "Contrast", "value": "contrast"},
+                                    {"label": "Sharpness", "value": "sharpness"},
+                                ],
+                                searchable=False,
+                                placeholder="Enhance...",
+                            ),
+                            html.Div(
+                                id="div-enhancement-factor",
+                                children=[
+                                    f"Enhancement Factor:",
+                                    html.Div(
+                                        children=dcc.Slider(
+                                            id="slider-enhancement-factor",
+                                            min=0,
+                                            max=2,
+                                            step=0.1,
+                                            value=1,
+                                            updatemode="drag",
+                                        )
+                                    ),
+                                ],
+                            ),
                             html.Div(
                                 id="button-group",
                                 children=[
@@ -475,7 +493,7 @@ def serve_layout():
                         figure={
                             "layout": {
                                 "paper_bgcolor": "#272a31",
-                                "plot_bgcolor" : "#272a31",
+                                "plot_bgcolor": "#272a31",
                             }
                         },
                         config={"displayModeBar": False},
@@ -528,16 +546,16 @@ def undo_last_action(n_clicks, storage):
     return storage
 
 
-@app.callback(
-    Output("graph-histogram-colors", "figure"), [Input("interactive-image", "figure")]
-)
-def update_histogram(figure):
-    # Retrieve the image stored inside the figure
-    enc_str = figure["layout"]["images"][0]["source"].split(";base64,")[-1]
-    # Creates the PIL Image object from the b64 png encoding
-    im_pil = drc.b64_to_pil(string=enc_str)
+# @app.callback(
+#     Output("graph-histogram-colors", "figure"), [Input("interactive-image", "figure")]
+# )
+# def update_histogram(figure):
+#     # Retrieve the image stored inside the figure
+#     enc_str = figure["layout"]["images"][0]["source"].split(";base64,")[-1]
+#     # Creates the PIL Image object from the b64 png encoding
+#     im_pil = drc.b64_to_pil(string=enc_str)
 
-    return utils.show_histogram(im_pil)
+#     return utils.show_histogram(im_pil)
 
 
 @app.callback(
@@ -549,10 +567,12 @@ def update_histogram(figure):
     ],
     [
         State("interactive-image", "selectedData"),
-        # State("dropdown-filters", "value"),
-        # State("dropdown-enhance", "value"),
-        # State("slider-enhancement-factor", "value"),
+        State("dropdown-filters", "value"),
+        State("dropdown-enhance", "value"),
+        State("slider-enhancement-factor", "value"),
         State("upload-image", "filename"),
+        State("radio-selection-mode", "value"),
+        State("radio-encoding-format", "value"),
         State("div-storage", "children"),
         State("session-id", "children"),
     ],
@@ -561,11 +581,14 @@ def update_graph_interactive_image(
     content,
     undo_clicks,
     n_clicks,
+    # new_win_width,
     selectedData,
-    # filters,
-    # enhance,
-    # enhancement_factor,
+    filters,
+    enhance,
+    enhancement_factor,
     new_filename,
+    dragmode,
+    enc_format,
     storage,
     session_id,
 ):
@@ -587,36 +610,39 @@ def update_graph_interactive_image(
         storage["filename"] = new_filename
 
         # Parse the string and convert to pil
-        print(f'\nShowing {new_filename}\n')
+        print(f'Showing {new_filename}')
         string = content.split(";base64,")[-1]
         print(string[:100])
         im_pil = drc.b64_to_pil(string)
 
-        # Update the image signature, which is the first 200 b64 characters of the string encoding
+        # Update the image signature, which is the first 200 b64 characters
+        # of the string encoding
         storage["image_signature"] = string[:200]
+
 
         # Resets the action stack
         storage["action_stack"] = []
 
-        # filepath = IMAGEDIR + new_filename#).replace('.png', 'img')
-        # print(f'\nModelling {filepath}\n')
-        # # model3D(filepath=filepath)
+        print(f'Modelling {filepath}')
+        filepath = (IMAGEDIR + filename).replace('.png', 'img')
+        # model3D(filepath=filepath)
 
 
     # If an operation was applied (when the filename wasn't changed)
     else:
         filepath = IMAGEDIR + filename
-        print(f'\nPredicting {filepath}\n')
+        print(f'Predicting {filepath}')
         new_filepath = predict_image(filepath)
         with open(new_filepath, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read()).decode()
-        print(encoded_string[:100])
         im_pil = drc.b64_to_pil(encoded_string)
 
     return [
         drc.InteractiveImagePIL(
             image_id   = "interactive-image",
             image      = im_pil,
+            enc_format = enc_format,
+            dragmode   = dragmode,
             verbose    = DEBUG,
         ),
         html.Div(

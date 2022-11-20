@@ -155,39 +155,40 @@ def show_histogram(image):
 
     hg = image.histogram()
 
-    if image.mode == "RGBA":
-        rhg = hg[0:256]
-        ghg = hg[256:512]
-        bhg = hg[512:768]
-        ahg = hg[768:]
+    # if image.mode == "RGBA":
+    #     rhg = hg[0:256]
+    #     ghg = hg[256:512]
+    #     bhg = hg[512:768]
+    #     ahg = hg[768:]
 
-        data = [
-            *hg_trace("Red", "#FF4136", rhg),
-            *hg_trace("Green", "#2ECC40", ghg),
-            *hg_trace("Blue", "#0074D9", bhg),
-            *hg_trace("Alpha", "gray", ahg),
-        ]
+    #     data = [
+    #         *hg_trace("Red", "#FF4136", rhg),
+    #         *hg_trace("Green", "#2ECC40", ghg),
+    #         *hg_trace("Blue", "#0074D9", bhg),
+    #         *hg_trace("Alpha", "gray", ahg),
+    #     ]
 
-        title = "RGBA Histogram"
+    #     title = "RGBA Histogram"
 
-    elif image.mode == "RGB":
-        # Returns a 768 member array with counts of R, G, B values
-        rhg = hg[0:256]
-        ghg = hg[256:512]
-        bhg = hg[512:768]
+    # elif image.mode == "RGB":
+    #     # Returns a 768 member array with counts of R, G, B values
+    #     rhg = hg[0:256]
+    #     ghg = hg[256:512]
+    #     bhg = hg[512:768]
 
-        data = [
-            *hg_trace("Red", "#FF4136", rhg),
-            *hg_trace("Green", "#2ECC40", ghg),
-            *hg_trace("Blue", "#0074D9", bhg),
-        ]
+    #     data = [
+    #         *hg_trace("Red", "#FF4136", rhg),
+    #         *hg_trace("Green", "#2ECC40", ghg),
+    #         *hg_trace("Blue", "#0074D9", bhg),
+    #     ]
 
-        title = "RGB Histogram"
+    #     title = "RGB Histogram"
 
-    else:
-        data = [*hg_trace("Gray", "gray", hg)]
+    # else:
+    if True:
+        data = [*hg_trace("Cumulative Intensity", "gray", hg)]
 
-        title = "Grayscale Histogram"
+        title = "Intensity Spectrum"
 
     layout = go.Layout(
         autosize=True,
