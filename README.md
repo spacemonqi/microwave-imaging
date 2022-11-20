@@ -1,5 +1,8 @@
-# Microwave Imaging
-Rohde &amp; Schwarz Microwave Imaging for HackaTUM 2022
+# Abiogenesis
+
+### HackaTUM 2022, Rohde &amp; Schwarz challenge
+
+[Youtube demo](https://www.youtube.com/watch?v=7SjpSHdKC-M)
 
 ## Inspiration
 In our project, we aim to help automate large-scale waste separation. Current solutions utilize lasers and cameras to classify unsorted waste. Although they are able to achieve high precision, these systems require the object to be clearly seen. Since the majority of waste is unsorted, the preprocessing step relies heavily on the manual action from human workers: waste needs to be extracted from the plastic bags or cardboard boxes, cleaned and evenly distributed along the sorting line. 
