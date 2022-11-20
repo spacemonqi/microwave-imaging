@@ -64,18 +64,20 @@ def import_volume(file_path):
     return _volume
 
 
-def model3D(filepath):
-    vol     = import_volume(filepath)
-    vol     = np.abs(vol)
-    vol    /= vol.max()
-    vol    *= 380
-    vol    -= 20
-    volume  = vol.T
-    c, r, nb_frames = vol.shape
-    dim = nb_frames - 1
-    plot_dim = 10 / 10  # dim / 10
+# def model3D(filepath):
+# vol     = import_volume(filepath)
+vol = import_volume('/home/dve/Desktop/microwave-imaging/data/20221119-135731-220_reco.img')
+vol     = np.abs(vol)
+vol    /= vol.max()
+vol    *= 380
+vol    -= 20
+volume  = vol.T
+c, r, nb_frames = vol.shape
+dim = nb_frames - 1
+plot_dim = 10 / 10  # dim / 10
 
-    fig = go.Figure(frames=[go.Frame(
+fig = go.Figure(
+    frames=[go.Frame(
         data=go.Surface(
             z            = (plot_dim - k * 1/dim) * np.ones((r, c)),
             surfacecolor = np.flipud(volume[dim - k]),
@@ -83,84 +85,87 @@ def model3D(filepath):
             cmax         = 200
         ),
         name = str(k) # you need to name the frame for the animation to behave properly
-    ) for k in range(nb_frames)])
+    ) for k in range(nb_frames)],
+    # layout = {
+    #     'plot_bgcolor' : 'rgb(230, 230, 255)',
+    #     'paper_bgcolor': 'rgb(230, 230, 255)',
+    # }
+)
 
-    # Add data to be displayed before animation starts
-    fig.add_trace(go.Surface(
-        z            = plot_dim * np.ones((r, c)),
-        surfacecolor = np.flipud(volume[dim]),
-        colorscale   = 'viridis',
-        cmin         = 0,
-        cmax         = 200,
-        colorbar     = dict(thickness=20, ticklen=4)
-    ))
+# Add data to be displayed before animation starts
+fig.add_trace(go.Surface(
+    z            = (plot_dim+5) * np.ones((r, c)),
+    surfacecolor = np.flipud(volume[dim]),
+    colorscale   = 'viridis',
+    cmin         = 0,
+    cmax         = 200,
+    colorbar     = dict(thickness=20, ticklen=4)
+))
 
 
-    def frame_args(duration):
-        return {
-                "frame"      : {"duration": duration},
-                "mode"       : "immediate",
-                "fromcurrent": True,
-                "transition" : {"duration": duration, "easing": "linear"},
+def frame_args(duration):
+    return {
+            "frame"      : {"duration": duration},
+            "mode"       : "immediate",
+            "fromcurrent": True,
+            "transition" : {"duration": duration, "easing": "linear"},
+        }
+
+sliders = [
+            {
+                "pad"  : {"b": 10, "t": 60},
+                "len"  : 0.9,
+                "x"    : 0.1,
+                "y"    : 0,
+                "steps": [
+                    {
+                        "args"  : [[f.name], frame_args(0)],
+                        "label" : str(k),
+                        "method": "animate",
+                    } for k, f in enumerate(fig.frames)
+                ],
             }
+        ]
 
-    sliders = [
-                {
-                    "pad"  : {"b": 10, "t": 60},
-                    "len"  : 0.9,
-                    "x"    : 0.1,
-                    "y"    : 0,
-                    "steps": [
-                        {
-                            "args"  : [[f.name], frame_args(0)],
-                            "label" : str(k),
-                            "method": "animate",
-                        } for k, f in enumerate(fig.frames)
-                    ],
-                }
-            ]
-
-    # Layout
-    fig.update_layout(
-            title  = 'Slices in volumetric data',
-            width  = 900,
-            height = 900,
-            scene  = dict(
-                zaxis       = dict(
-                    range     = [-0.1, plot_dim+0.1],
-                    autorange = False
-                ),
-                aspectratio = dict(
-                    x = 1,
-                    y = 1,
-                    z = 0.75
-                ),
+# Layout
+fig.update_layout(
+        title        = 'Microwave Imaging Slices',
+        width        = 1200,
+        height       = 1200,
+        scene        = dict(
+            zaxis       = dict(
+                range     = [-0.1, plot_dim+0.1],
+                autorange = False
             ),
-            updatemenus = [
-                {
-                    "buttons": [
-                        {
-                            "args"  : [None, frame_args(50)],
-                            "label" : "&#9654;",              # play symbol
-                            "method": "animate",
-                        },
-                        {
-                            "args"  : [[None], frame_args(0)],
-                            "label" : "&#9724;",               # pause symbol
-                            "method": "animate",
-                        },
-                    ],
-                    "direction": "left",
-                    "pad"      : {"r": 10, "t": 70},
-                    "type"     : "buttons",
-                    "x"        : 0.1,
-                    "y"        : 0,
-                }
-            ],
-            sliders = sliders
-    )
-
-    fig.show()
+            aspectratio = dict(
+                x = 1,
+                y = 1,
+                z = 0.75
+            ),
+        ),
+        updatemenus = [
+            {
+                "buttons": [
+                    {
+                        "args"  : [None, frame_args(50)],
+                        "label" : "&#9654;",              # play symbol
+                        "method": "animate",
+                    },
+                    {
+                        "args"  : [[None], frame_args(0)],
+                        "label" : "&#9724;",               # pause symbol
+                        "method": "animate",
+                    },
+                ],
+                "direction": "left",
+                "pad"      : {"r": 10, "t": 70},
+                "type"     : "buttons",
+                "x"        : 0.1,
+                "y"        : 0,
+            }
+        ],
+        sliders = sliders
+)
 
 
 def predict_image_object_detection_sample(
@@ -357,27 +362,12 @@ def serve_layout():
                     html.Div(
                         id="banner",
                         children=[
-                            html.H2("ABIOGENESIS", id="title"),
+                            html.H1("ABIOGENESIS", id="title"),
                         ],
                     ),
-                    html.Div(
-                        id="image",
-                        children=[
-                            # The Interactive Image Div contains the dcc Graph
-                            # showing the image, as well as the hidden div storing
-                            # the true image
-                            html.Div(
-                                id="div-interactive-image",
-                                children=[
-                                    utils.GRAPH_PLACEHOLDER,
-                                    html.Div(
-                                        id="div-storage",
-                                        children=utils.STORAGE_PLACEHOLDER,
-                                    ),
-                                ],
-                            )
-                        ],
-                    ),
+                    html.Div([
+                        dcc.Graph(id="graph", figure=fig),
+                    ])
                 ],
             ),
             # Sidebar
@@ -412,53 +402,6 @@ def serve_layout():
                     ),
                     drc.Card(
                         [
-                            # drc.CustomDropdown(
-                            #     id="dropdown-filters",
-                            #     options=[
-                            #         {"label": "Blur", "value": "blur"},
-                            #         {"label": "Contour", "value": "contour"},
-                            #         {"label": "Detail", "value": "detail"},
-                            #         {"label": "Enhance Edge", "value": "edge_enhance"},
-                            #         {
-                            #             "label": "Enhance Edge (More)",
-                            #             "value": "edge_enhance_more",
-                            #         },
-                            #         {"label": "Emboss", "value": "emboss"},
-                            #         {"label": "Find Edges", "value": "find_edges"},
-                            #         {"label": "Sharpen", "value": "sharpen"},
-                            #         {"label": "Smooth", "value": "smooth"},
-                            #         {"label": "Smooth (More)", "value": "smooth_more"},
-                            #     ],
-                            #     searchable=False,
-                            #     placeholder="Basic Filter...",
-                            # ),
-                            # drc.CustomDropdown(
-                            #     id="dropdown-enhance",
-                            #     options=[
-                            #         {"label": "Brightness", "value": "brightness"},
-                            #         {"label": "Color Balance", "value": "color"},
-                            #         {"label": "Contrast", "value": "contrast"},
-                            #         {"label": "Sharpness", "value": "sharpness"},
-                            #     ],
-                            #     searchable=False,
-                            #     placeholder="Enhance...",
-                            # ),
-                            # html.Div(
-                            #     id="div-enhancement-factor",
-                            #     children=[
-                            #         f"Enhancement Factor:",
-                            #         html.Div(
-                            #             children=dcc.Slider(
-                            #                 id="slider-enhancement-factor",
-                            #                 min=0,
-                            #                 max=2,
-                            #                 step=0.1,
-                            #                 value=1,
-                            #                 updatemode="drag",
-                            #             )
-                            #         ),
-                            #     ],
-                            # ),
                             html.Div(
                                 id="button-group",
                                 children=[
@@ -470,15 +413,33 @@ def serve_layout():
                             ),
                         ]
                     ),
-                    dcc.Graph(
-                        id="graph-histogram-colors",
-                        figure={
-                            "layout": {
-                                "paper_bgcolor": "#272a31",
-                                "plot_bgcolor" : "#272a31",
-                            }
-                        },
-                        config={"displayModeBar": False},
+                    # dcc.Graph(
+                    #     id="graph-histogram-colors",
+                    #     figure={
+                    #         "layout": {
+                    #             "paper_bgcolor": "#272a31",
+                    #             "plot_bgcolor" : "#272a31",
+                    #         }
+                    #     },
+                    #     config={"displayModeBar": False},
+                    # ),
+                    html.Div(
+                        id="image",
+                        children=[
+                            # The Interactive Image Div contains the dcc Graph
+                            # showing the image, as well as the hidden div storing
+                            # the true image
+                            html.Div(
+                                id="div-interactive-image",
+                                children=[
+                                    utils.GRAPH_PLACEHOLDER,
+                                    html.Div(
+                                        id="div-storage",
+                                        children=utils.STORAGE_PLACEHOLDER,
+                                    ),
+                                ],
+                            )
+                        ],
                     ),
                 ],
             ),
