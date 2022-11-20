@@ -30,6 +30,119 @@ from google.cloud.aiplatform.gapic.schema import predict
 IMAGEDIR = '/home/dve/Desktop/microwave-imaging/data/'
 
 
+def set_fig():
+    with open('tempfile.txt', 'r') as f:
+        filename = f.read()
+    filepath  = (IMAGEDIR + filename).replace('.png', '_reco.img')
+    vol       = import_volume(filepath)
+    vol       = np.abs(vol)
+    vol      /= vol.max()
+    vol      *= 380
+    vol      -= 20
+    volume    = vol.T
+    c, r, nb_frames = vol.shape
+    dim = nb_frames - 1
+    plot_dim = 10 / 10  # dim / 10
+
+    fig = go.Figure(
+        frames=[go.Frame(
+            data=go.Surface(
+                z            = (plot_dim - k * 1/dim) * np.ones((r, c)),
+                surfacecolor = np.flipud(volume[dim - k]),
+                cmin         = 0,
+                cmax         = 200
+            ),
+            name = str(k) # you need to name the frame for the animation to behave properly
+        ) for k in range(nb_frames)],
+        # layout = {
+        #     'plot_bgcolor' : 'rgb(230, 230, 255)',
+        #     'paper_bgcolor': 'rgb(230, 230, 255)',
+        # }
+    )
+
+    # Add data to be displayed before animation starts
+    fig.add_trace(go.Surface(
+        z            = (plot_dim+5) * np.ones((r, c)),
+        surfacecolor = np.flipud(volume[dim]),
+        colorscale   = 'viridis',
+        cmin         = 0,
+        cmax         = 200,
+        colorbar     = dict(thickness=20, ticklen=4)
+    ))
+
+
+    def frame_args(duration):
+        return {
+                "frame"      : {"duration": duration},
+                "mode"       : "immediate",
+                "fromcurrent": True,
+                "transition" : {"duration": duration, "easing": "linear"},
+            }
+
+    sliders = [
+                {
+                    "pad"  : {"b": 10, "t": 60},
+                    "len"  : 0.9,
+                    "x"    : 0.1,
+                    "y"    : 0,
+                    "steps": [
+                        {
+                            "args"  : [[f.name], frame_args(0)],
+                            "label" : str(k),
+                            "method": "animate",
+                        } for k, f in enumerate(fig.frames)
+                    ],
+                }
+            ]
+
+    # Layout
+    fig.update_layout(
+            title        = 'Microwave Imaging Slices',
+            font=dict(
+                family = "Major Mono Display",
+                size   = 18,
+            ),
+            width        = 1200,
+            height       = 1200,
+            scene        = dict(
+                zaxis       = dict(
+                    range     = [-0.1, plot_dim+0.1],
+                    autorange = False
+                ),
+                aspectratio = dict(
+                    x = 1,
+                    y = 1,
+                    z = 0.75
+                ),
+            ),
+            updatemenus = [
+                {
+                    "buttons": [
+                        {
+                            "args"  : [None, frame_args(50)],
+                            "label" : "&#9654;",              # play symbol
+                            "method": "animate",
+                        },
+                        {
+                            "args"  : [[None], frame_args(0)],
+                            "label" : "&#9724;",               # pause symbol
+                            "method": "animate",
+                        },
+                    ],
+                    "direction": "left",
+                    "pad"      : {"r": 10, "t": 70},
+                    "type"     : "buttons",
+                    "x"        : 0.1,
+                    "y"        : 0,
+                }
+            ],
+            sliders = sliders
+    )
+
+    return fig
+
+
+
 def import_volume(file_path):
     """Import 3D volumetric data from file.
 
@@ -64,9 +177,12 @@ def import_volume(file_path):
     return _volume
 
 
-# def model3D(filepath):
-# vol     = import_volume(filepath)
-vol = import_volume('/home/dve/Desktop/microwave-imaging/data/20221119-135731-220_reco.img')
+
+
+with open('tempfile.txt', 'r') as f:
+    filename = f.read()
+filepath = (IMAGEDIR + filename).replace('.png', '_reco.img')
+vol = import_volume(filepath)
 vol     = np.abs(vol)
 vol    /= vol.max()
 vol    *= 380
@@ -130,6 +246,10 @@ sliders = [
 # Layout
 fig.update_layout(
         title        = 'Microwave Imaging Slices',
+        font=dict(
+            family = "Major Mono Display",
+            size   = 18,
+        ),
         width        = 1200,
         height       = 1200,
         scene        = dict(
@@ -362,8 +482,12 @@ def serve_layout():
                     html.Div(
                         id="banner",
                         children=[
-                            html.H1("ABIOGENESIS", id="title"),
+                            html.Img(
+                                id="logo", src=app.get_asset_url("abiogenesis.png"), style={'height':'8%', 'width':'80%'}
+                            )
+                            # html.H1("ABIOGENESIS", id="title"),
                         ],
+                        # style={'width': '90vh', 'height': '40vh'}
                     ),
                     html.Div([
                         dcc.Graph(id="graph", figure=fig),
@@ -391,7 +515,7 @@ def serve_layout():
                                     "borderWidth"  : "1px",
                                     "borderStyle"  : "dashed",
                                     "borderRadius" : "5px",
-                                    "borderColor"  : "darkgray",
+                                    "bdorderColor"  : "darkgray",
                                     "textAlign"    : "center",
                                     "padding"      : "2rem 0",
                                     "margin-bottom": "2rem",
@@ -489,6 +613,8 @@ def undo_last_action(n_clicks, storage):
     return storage
 
 
+
+
 @app.callback(
     Output("graph-histogram-colors", "figure"), [Input("interactive-image", "figure")]
 )
@@ -502,11 +628,15 @@ def update_histogram(figure):
 
 
 @app.callback(
-    Output("div-interactive-image", "children"),
+    [
+        Output("div-interactive-image", "children"),
+        Output("graph", "figure")
+    ],
     [
         Input("upload-image", "contents"),
         Input("button-undo", "n_clicks"),
         Input("button-run-operation", "n_clicks"),
+        Input("graph", "figure")
     ],
     [
         State("interactive-image", "selectedData"),
@@ -522,6 +652,7 @@ def update_graph_interactive_image(
     content,
     undo_clicks,
     n_clicks,
+    fig,
     selectedData,
     # filters,
     # enhance,
@@ -551,6 +682,8 @@ def update_graph_interactive_image(
         print(f'\nShowing {new_filename}\n')
         string = content.split(";base64,")[-1]
         print(string[:100])
+        with open('tempfile.txt', 'w') as f:
+            f.write(new_filename)
         im_pil = drc.b64_to_pil(string)
 
         # Update the image signature, which is the first 200 b64 characters of the string encoding
@@ -559,9 +692,10 @@ def update_graph_interactive_image(
         # Resets the action stack
         storage["action_stack"] = []
 
-        # filepath = IMAGEDIR + new_filename#).replace('.png', 'img')
-        # print(f'\nModelling {filepath}\n')
-        # # model3D(filepath=filepath)
+
+        # print('json')
+        # print(fig_json.keys())
+        fig = set_fig()
 
 
     # If an operation was applied (when the filename wasn't changed)
@@ -583,7 +717,7 @@ def update_graph_interactive_image(
         html.Div(
             id="div-storage", children=json.dumps(storage), style={"display": "none"}
         ),
-    ]
+    ], fig
 
 
 
