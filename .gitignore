@@ -1,6 +1,7 @@
 # daniel-v-e
 *.png
 TensorFlow/
+_sort_out/
 dash-bio/
 images/
 data/
@@ -136,3 +137,5 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+src/image_string.csv
+src/image_string.csv
